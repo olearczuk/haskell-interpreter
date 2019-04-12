@@ -50,7 +50,11 @@ ElseCond.   Stmt ::= "if" "(" Expr ")" Stmt "else" Stmt ;
 
 While.      Stmt ::= "while" "(" Expr ")" Stmt ;
 
-For.		Stmt ::= "for" Ident "=" Expr "to" Expr Stmt ;
+For.		Stmt ::= "for" "(" Ident "=" Expr "to" Expr ")" Stmt ;
+
+Break.      Stmt ::= "break" ";" ;
+
+Continue.   Stmt ::= "continue" ";" ;
 
 SExp.       Stmt ::= Expr ";" ;
 

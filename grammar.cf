@@ -4,7 +4,17 @@ entrypoints Program ;
 
 Program.	Program ::= [TopDef] ;
 
-FnDef.		TopDef ::= Type Ident "(" [Arg] ")" Block ; 
+FnDecl.		TopDef ::= Type Ident "(" [Arg] ")" Block ;
+
+VarDecl.    TopDef ::= Type [Item] ";" ;
+
+ConstDecl.  TopDef ::= "const" Type [Item] ";" ;
+
+NoInit.		Item ::= Ident ;
+
+Init.       Item ::= Ident "=" Expr ;
+
+separator nonempty Item "," ;
 
 separator nonempty TopDef "" ;
 
@@ -21,18 +31,6 @@ separator Stmt "" ;
 Empty.      Stmt ::= ";" ;
 
 BStmt.      Stmt ::= Block ;
-
-Decl.       Stmt ::= Type [Item] ";" ;
-
-NoInitRead. Item ::= "read" Ident ;
-
-InitRead.   Item ::= "read" Ident "=" Expr ;
-
-NoInit.		Item ::= Ident ;
-
-Init.       Item ::= Ident "=" Expr ;
-
-separator nonempty Item "," ;
 
 Ass.        Stmt ::= Ident "=" Expr ";";
 
@@ -56,7 +54,9 @@ Break.      Stmt ::= "break" ";" ;
 
 Continue.   Stmt ::= "continue" ";" ;
 
-SExp.       Stmt ::= Expr ";" ;
+StmtExp.    Stmt ::= Expr ";" ;
+
+StmtDecl.   Stmt ::= TopDef ;
 
 -- Types -------------------------------------------------------
 

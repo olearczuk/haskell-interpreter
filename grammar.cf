@@ -2,7 +2,7 @@
 
 entrypoints Program ;
 
-Program.	Program ::= [TopDef] ;
+Program.	Program ::= [Stmt] ;
 
 FnDecl.		TopDef ::= Type Ident "(" [Arg] ")" Block ;
 
@@ -114,17 +114,17 @@ Div.		MulOp ::= "/" ;
 
 Mod.		MulOp ::= "%" ;
 
-LTH.		RelOp ::= "<" ;
+Lth.		RelOp ::= "<" ;
 
-LE.			RelOp ::= "<=" ;
+Le.			RelOp ::= "<=" ;
 
-GTH.		RelOp ::= ">" ;
+Gth.		RelOp ::= ">" ;
 
-GE. 		RelOp ::= ">=" ;
+Ge. 		RelOp ::= ">=" ;
 
-EQ.			RelOp ::= "==" ;
+Eq.			RelOp ::= "==" ;
 
-NE.			RelOp ::= "!=" ;
+Ne.			RelOp ::= "!=" ;
 
 -- Comments ----------------------------------------------------
 comment     "//" ;

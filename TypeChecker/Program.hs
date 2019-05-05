@@ -13,13 +13,11 @@ import Control.Monad.Identity
 
 import TypeChecker.Declaration
 
-checkProgram :: Program -> IO ()
+checkProgram :: Program -> Either String (Env ->Env )
 checkProgram (Program stmts) = 
-  let result = runExcept $ runReaderT (checkStmt $ head stmts) 
-                  $ Env { variables = M.empty, isLoop = False} in
-  case result of
-    Left err -> putStrLn err
-    Right _ -> print "Ok"
+  runExcept $ runReaderT (checkStmt $ head stmts) 
+    $ Env { variables = M.empty, isLoop = False, blockNumber = 0 }
+
   
 
 

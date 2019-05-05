@@ -9,12 +9,13 @@ import PrintGrammar
 data Val = Const Type | NonConst Type
 type IsConst = Bool
 type ExpectedTypes = [Type]
+type BlockNumber = Integer
 
 allVariableTypes :: ExpectedTypes
 allVariableTypes = [Int, Str, Bool]
 
 -- TODO -> add functions
-data Env = Env { variables :: M.Map String Val, isLoop :: Bool } 
+data Env = Env { variables :: M.Map String (Val, BlockNumber), isLoop :: Bool, blockNumber :: Integer } 
 type Checker a = (ReaderT Env (Except String)) a
 
 
@@ -30,7 +31,7 @@ checkType :: (Print a) => a -> ExpectedTypes -> Type -> Checker ()
 checkType instruction types t = do
   if elem t types
     then return ()
-    else throwError $ (wrappedPrintTree instruction) ++  (" <- wrong type " ++ (wrappedPrintTree t) ++ "\n")
+    else throwError $ (wrappedPrintTree instruction) ++  (" <- wrong type " ++ (wrappedPrintTree t))
 
 
 getValType :: Val -> Checker Type
@@ -43,8 +44,8 @@ lookupVariableValue x instruction = do
   vars <- asks variables
   let val = M.lookup x vars
   case val of 
-    Nothing ->  throwError $ (wrappedPrintTree instruction) ++ " <- variable is not defined\n"
-    Just v -> return v
+    Nothing ->  throwError $ (wrappedPrintTree instruction) ++ " <- variable is not defined"
+    Just (v, blockNumber) -> return v
 
 
 lookupVariableType :: (Print a) => String -> a -> Checker Type
@@ -53,18 +54,23 @@ lookupVariableType x instruction = lookupVariableValue x instruction >>= getValT
 
 
 -- TODO -> add checking in functions later
-checkIfIdentTaken :: (Print a) => String -> a -> Checker ()
-checkIfIdentTaken x instruction = do
+checkIfVariableDefined :: (Print a) => String -> a -> Checker ()
+checkIfVariableDefined x instruction = do
   vars <- asks variables
-  if M.member x vars
-    then throwError $ (wrappedPrintTree instruction) ++ " <- ident already taken\n"
-    else return ()
+  actBlockNumber <- asks blockNumber
+  let val = M.lookup x vars
+  case val of
+    Just (v, blockNumber) -> 
+      if blockNumber == actBlockNumber
+        then throwError $ (wrappedPrintTree instruction) ++ " <- variable is already defined"
+        else return ()
+    Nothing -> return  ()
 
 
 checkValueConst :: (Print a) => Val -> a -> Checker ()
 checkValueConst val instruction =
   case val of
-    (Const _) -> throwError $ (wrappedPrintTree instruction) ++ " <- can't change const variable\n"
+    (Const _) -> throwError $ (wrappedPrintTree instruction) ++ " <- can't change const variable"
     _ -> return ()
 
 
@@ -73,4 +79,16 @@ checkIfLoop instruction = do
   isLoop <- asks isLoop
   if isLoop
     then return ()
-    else throwError $ (wrappedPrintTree instruction) ++  " <- called outside of loop\n"
+    else throwError $ (wrappedPrintTree instruction) ++  " <- called outside of loop"
+
+
+addVariable :: String -> Type -> IsConst -> Checker (Env -> Env)
+addVariable x varType isConst = do
+  blockNumber <- asks blockNumber
+  return $ \env -> 
+        let val = if isConst then Const varType else NonConst varType in
+        let newVariables = M.insert x (val, blockNumber) (variables env) in
+        env { variables = newVariables }
+
+
+

@@ -11,7 +11,7 @@ checkStmt :: Stmt -> Checker (Env -> Env)
 checkStmt stmt = case stmt of
   Empty -> return id
 
-  BStmt (Block stmts) -> case stmts of
+  BStmt (Block stmts) ->  local (\env -> env { blockNumber = (blockNumber env) + 1 }) $ case stmts of
     [] -> return id
     (stmtH:stmtT) -> do
       f <- checkStmt stmtH

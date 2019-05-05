@@ -30,20 +30,14 @@ execSingleVarDecl :: Item -> Type -> IsConst -> Checker (Env -> Env)
 execSingleVarDecl item varType isConst = do 
   case item of
     NoInit (Ident x) -> do
-      checkIfIdentTaken x item
-      checkType item [Int, Str, Bool] varType
-      return $ \env -> 
-        let val = if isConst then Const varType else NonConst varType in
-        let newVariables = M.insert x val (variables env) in
-        env { variables = newVariables }
+      checkIfVariableDefined x item
+      checkType item allVariableTypes varType
+      addVariable x varType isConst
       
     Init (Ident x) expr -> do
-      checkIfIdentTaken x item
-      checkType item [Int, Str, Bool] varType
+      checkIfVariableDefined x item
+      checkType item allVariableTypes varType
       exprType <- getExprType expr
       checkType expr [varType] exprType
-      return $ \env -> 
-        let val = if isConst then Const varType else NonConst varType in
-        let newVariables = M.insert x val (variables env) in
-        env { variables = newVariables }
+      addVariable x varType isConst
 

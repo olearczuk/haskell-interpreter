@@ -11,12 +11,17 @@ checkStmt :: Stmt -> Checker (Env -> Env)
 checkStmt stmt = case stmt of
   Empty -> return id
 
-  BStmt (Block stmts) ->  local (\env -> env { blockNumber = (blockNumber env) + 1 }) $ case stmts of
-    [] -> return id
-    (stmtH:stmtT) -> do
-      f <- checkStmt stmtH
-      local f (checkStmt $ BStmt $ Block stmtT)
-      return id
+  BStmt (Block stmts) ->  
+    local (\env -> env { blockNumber = (blockNumber env) + 1 }) $ proceedCheck stmts
+    where 
+      proceedCheck :: [Stmt] -> Checker (Env -> Env)
+      proceedCheck stmts =
+        case stmts of
+          [] -> return id
+          (stmtH:stmtT) -> do
+            f <- checkStmt stmtH
+            local f (proceedCheck stmtT)
+            return id
 
   Ass x expr -> do
     val <- lookupVariableValue x expr

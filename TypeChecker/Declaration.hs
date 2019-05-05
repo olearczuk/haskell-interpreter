@@ -29,12 +29,12 @@ execDecl (ConstDecl varType items) =
 execSingleVarDecl :: Item -> Type -> IsConst -> Checker (Env -> Env)
 execSingleVarDecl item varType isConst = do 
   case item of
-    NoInit (Ident x) -> do
+    NoInit x -> do
       checkIfVariableDefined x item
       checkType item allVariableTypes varType
       addVariable x varType isConst
       
-    Init (Ident x) expr -> do
+    Init x expr -> do
       checkIfVariableDefined x item
       checkType item allVariableTypes varType
       exprType <- getExprType expr

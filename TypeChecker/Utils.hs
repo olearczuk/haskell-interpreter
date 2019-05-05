@@ -15,7 +15,7 @@ allVariableTypes :: ExpectedTypes
 allVariableTypes = [Int, Str, Bool]
 
 -- TODO -> add functions
-data Env = Env { variables :: M.Map String (Val, BlockNumber), isLoop :: Bool, blockNumber :: Integer } 
+data Env = Env { variables :: M.Map Ident (Val, BlockNumber), isLoop :: Bool, blockNumber :: Integer } 
 type Checker a = (ReaderT Env (Except String)) a
 
 
@@ -39,7 +39,7 @@ getValType (Const t) = return t
 getValType (NonConst t) = return t
 
 
-lookupVariableValue :: (Print a) => String -> a -> Checker Val
+lookupVariableValue :: (Print a) => Ident -> a -> Checker Val
 lookupVariableValue x instruction = do
   vars <- asks variables
   let val = M.lookup x vars
@@ -48,13 +48,13 @@ lookupVariableValue x instruction = do
     Just (v, blockNumber) -> return v
 
 
-lookupVariableType :: (Print a) => String -> a -> Checker Type
+lookupVariableType :: (Print a) => Ident -> a -> Checker Type
 lookupVariableType x instruction = lookupVariableValue x instruction >>= getValType
 
 
 
 -- TODO -> add checking in functions later
-checkIfVariableDefined :: (Print a) => String -> a -> Checker ()
+checkIfVariableDefined :: (Print a) => Ident -> a -> Checker ()
 checkIfVariableDefined x instruction = do
   vars <- asks variables
   actBlockNumber <- asks blockNumber
@@ -82,7 +82,7 @@ checkIfLoop instruction = do
     else throwError $ (wrappedPrintTree instruction) ++  " <- called outside of loop"
 
 
-addVariable :: String -> Type -> IsConst -> Checker (Env -> Env)
+addVariable :: Ident -> Type -> IsConst -> Checker (Env -> Env)
 addVariable x varType isConst = do
   blockNumber <- asks blockNumber
   return $ \env -> 

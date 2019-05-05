@@ -7,7 +7,7 @@ import AbsGrammar
 
 getExprType :: Expr -> Checker Type
 getExprType expr = case expr of
-  EVar (Ident x) -> lookupVariableType x expr
+  EVar x -> lookupVariableType x expr
 
   EInt n -> return Int
 

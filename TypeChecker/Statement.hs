@@ -18,7 +18,7 @@ checkStmt stmt = case stmt of
       local f (checkStmt $ BStmt $ Block stmtT)
       return id
 
-  Ass (Ident x) expr -> do
+  Ass x expr -> do
     val <- lookupVariableValue x expr
     checkValueConst val expr
     valType <- getValType val
@@ -26,14 +26,14 @@ checkStmt stmt = case stmt of
     checkType expr [valType] exprType
     return id
 
-  Incr (Ident x) -> do
+  Incr x -> do
     val <- lookupVariableValue x stmt
     varType <- getValType val
     checkValueConst val stmt
     checkType stmt [Int] varType
     return id
 
-  Decr (Ident x) -> do
+  Decr x -> do
     val <- lookupVariableValue x stmt
     varType <- getValType val
     checkValueConst val stmt
@@ -63,12 +63,12 @@ checkStmt stmt = case stmt of
     local (\env -> env { isLoop = True }) $ checkStmt stmt
     return id
 
-  For (Ident x) expr1 expr2 stmt -> do
+  For x expr1 expr2 stmt -> do
     exprType1 <- getExprType expr1
     checkType expr1 [Int] exprType1
     exprType2 <- getExprType expr2
     checkType expr2 [Int] exprType2
-    f <- execSingleVarDecl (NoInit (Ident x)) Int True
+    f <- execSingleVarDecl (NoInit x) Int True
     local (\env -> f env { isLoop = True }) $ checkStmt stmt
     return id
 

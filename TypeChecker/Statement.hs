@@ -68,14 +68,15 @@ checkStmt stmt = case stmt of
     local (\env -> env { isLoop = True }) $ checkStmt stmt
     return id
 
-  For x expr1 expr2 stmt -> do
-    exprType1 <- getExprType expr1
-    checkType expr1 [Int] exprType1
-    exprType2 <- getExprType expr2
-    checkType expr2 [Int] exprType2
-    f <- execSingleVarDecl (NoInit x) Int True
-    local (\env -> f env { isLoop = True }) $ checkStmt stmt
-    return id
+  For x expr1 expr2 stmt -> local (\env -> env { blockNumber = (blockNumber env) + 1 }) $
+    do
+      exprType1 <- getExprType expr1
+      checkType expr1 [Int] exprType1
+      exprType2 <- getExprType expr2
+      checkType expr2 [Int] exprType2
+      f <- execSingleVarDecl (NoInit x) Int True
+      local (\env -> f env { isLoop = True }) $ checkStmt stmt
+      return id
 
   Break -> checkIfLoop stmt >> return id
 

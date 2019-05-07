@@ -12,7 +12,7 @@ checkStmt stmt = case stmt of
   Empty -> return id
 
   BStmt (Block stmts) ->  
-    local (\env -> env { blockNumber = (blockNumber env) + 1 }) $ proceedCheck stmts
+    local nextBlockNumber $ proceedCheck stmts
     where 
       proceedCheck :: [Stmt] -> Checker (Env -> Env)
       proceedCheck stmts =
@@ -49,26 +49,26 @@ checkStmt stmt = case stmt of
 
   -- VRet
 
-  Cond expr stmt -> do
+  Cond expr stmt -> local nextBlockNumber $ do
     exprType <- getExprType expr
     checkType expr [Bool] exprType
     checkStmt stmt
     return id
 
-  ElseCond expr stmt1 stmt2 -> do
+  ElseCond expr stmt1 stmt2 -> local nextBlockNumber $ do
     exprType <- getExprType expr
     checkType expr [Bool] exprType
     checkStmt stmt1
     checkStmt stmt2
     return id
 
-  While expr stmt -> do
+  While expr stmt -> local nextBlockNumber $ do
     exprType <- getExprType expr
     checkType expr [Bool] exprType
     local (\env -> env { isLoop = True }) $ checkStmt stmt
     return id
 
-  For x expr1 expr2 stmt -> local (\env -> env { blockNumber = (blockNumber env) + 1 }) $
+  For x expr1 expr2 stmt -> local nextBlockNumber $
     do
       exprType1 <- getExprType expr1
       checkType expr1 [Int] exprType1

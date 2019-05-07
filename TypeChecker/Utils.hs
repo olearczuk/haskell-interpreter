@@ -91,4 +91,5 @@ addVariable x varType isConst = do
         env { variables = newVariables }
 
 
-
+nextBlockNumber :: Env -> Env
+nextBlockNumber env = env { blockNumber = 1 + blockNumber env }

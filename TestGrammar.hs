@@ -14,7 +14,7 @@ import PrintGrammar
 import AbsGrammar
 
 import TypeChecker.Program
--- import Interp.Program
+import Interp.Program
 
 import ErrM
 
@@ -46,6 +46,5 @@ main = do
         Ok tree -> let result = checkProgram tree in
           case result of
             Left err -> putStrLn err
-            Right _ -> print "ok"
-            -- Right _ -> interpProgram tree
+            Right _ -> interpProgram tree
 

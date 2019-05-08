@@ -45,9 +45,16 @@ checkStmt stmt = case stmt of
     checkType stmt [Int] varType
     return id
 
-  -- Ret expr
-
-  -- VRet
+  Ret expr -> do
+    fType <- lookupActFunctionType stmt
+    exprType <- getExprType expr
+    checkType stmt [fType] exprType
+    return id
+  
+  VRet -> do
+    fType <- lookupActFunctionType stmt
+    checkType stmt [fType] Void
+    return id
 
   Cond expr stmt -> local nextBlockNumber $ do
     exprType <- getExprType expr
@@ -84,5 +91,12 @@ checkStmt stmt = case stmt of
 
   StmtExp expr -> getExprType expr >> return id
 
-  StmtDecl def -> execDecl def
+  StmtDecl (FnDecl fType f args innerStmt) -> do
+    fDecl <- execDecl (FnDecl fType f args innerStmt)
+    local fDecl $ do
+      (fType, _, args) <- lookupFunctionData f stmt
+      fArgs <- local nextBlockNumber $ initArguments args
+      local (\env -> nextBlockNumber . fArgs $ env { actFunctionType = Just fType }) $ checkStmt $ BStmt innerStmt
+    return fDecl
 
+  StmtDecl decl -> execDecl decl

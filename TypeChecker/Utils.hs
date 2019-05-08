@@ -10,14 +10,23 @@ data Val = Const Type | NonConst Type
 type IsConst = Bool
 type ExpectedTypes = [Type]
 type BlockNumber = Integer
+type ArgsData = [(Type, Ident)]
+type FunctionData = (Type, BlockNumber, ArgsData)
 
 allVariableTypes :: ExpectedTypes
 allVariableTypes = [Int, Str, Bool]
 
--- TODO -> add functions
-data Env = Env { variables :: M.Map Ident (Val, BlockNumber), isLoop :: Bool, blockNumber :: Integer } 
-type Checker a = (ReaderT Env (Except String)) a
 
+data Env = Env { 
+                  variables :: M.Map Ident (Val, BlockNumber), 
+                  isLoop :: Bool, 
+                  blockNumber :: Integer, 
+                  functions :: M.Map Ident FunctionData, 
+                  actFunctionType :: Maybe Type
+                }
+
+
+type Checker a = (ReaderT Env (Except String)) a
 
 wrappedPrintTree :: (Print a) => a -> String
 wrappedPrintTree instruction =
@@ -52,8 +61,6 @@ lookupVariableType :: (Print a) => Ident -> a -> Checker Type
 lookupVariableType x instruction = lookupVariableValue x instruction >>= getValType
 
 
-
--- TODO -> add checking in functions later
 checkIfVariableDefined :: (Print a) => Ident -> a -> Checker ()
 checkIfVariableDefined x instruction = do
   vars <- asks variables
@@ -93,3 +100,30 @@ addVariable x varType isConst = do
 
 nextBlockNumber :: Env -> Env
 nextBlockNumber env = env { blockNumber = 1 + blockNumber env }
+
+checkIfFunctionDefined :: (Print a) => Ident -> a -> Checker ()
+checkIfFunctionDefined f instruction = do
+  functions <- asks functions
+  actBlockNumber <- asks blockNumber
+  let functionData = M.lookup f functions
+  case functionData of
+    Just (_, blockNumber, _) ->
+      if blockNumber == actBlockNumber
+        then throwError $ (wrappedPrintTree instruction) ++ " <- function is already defined"
+        else return ()
+    Nothing -> return ()
+
+lookupFunctionData :: (Print a) => Ident -> a -> Checker FunctionData
+lookupFunctionData f instruction = do
+  functions <- asks functions
+  let functionData = M.lookup f functions
+  case functionData of
+    Nothing -> throwError $ (wrappedPrintTree instruction) ++ " <- function is not defined"
+    Just fData -> return fData
+
+lookupActFunctionType :: (Print a) => a -> Checker Type
+lookupActFunctionType instruction = do
+  fType <- asks actFunctionType
+  case fType of
+    Nothing -> throwError $ (wrappedPrintTree instruction) ++ " <- outside of function"
+    Just t -> return t

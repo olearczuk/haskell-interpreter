@@ -1,9 +1,11 @@
 module TypeChecker.Expression where
 
 import Control.Monad.Reader
+import Control.Monad.Except
 import qualified Data.Map as M
 import TypeChecker.Utils
 import AbsGrammar
+import PrintGrammar
 
 getExprType :: Expr -> Checker Type
 getExprType expr = case expr of
@@ -14,8 +16,6 @@ getExprType expr = case expr of
   ETrue -> return Bool
 
   EFalse -> return Bool
-
-  -- EApp Ident [Expr] TODO
 
   EString _ -> return Str
 
@@ -45,7 +45,26 @@ getExprType expr = case expr of
 
   EOr expr1 expr2 -> checkTwoExprs expr1 expr2 [Bool]
 
-  where 
+  EApp f exprs -> do
+    (fType, _, storedArgs) <- lookupFunctionData f expr
+    checkArgs exprs storedArgs expr
+    return fType
+  where
+    checkArgs :: (Print) a => [Expr] -> ArgsData -> a -> Checker ()
+    checkArgs [] [] _ = return ()
+
+    checkArgs exprs [] instruction = 
+      throwError $ (wrappedPrintTree instruction) ++  " <- wrong number of arguments"
+
+    checkArgs [] args instruction = 
+      throwError $ (wrappedPrintTree instruction) ++  " <- wrong number of arguments"
+
+    checkArgs (expr:exprsT) ((argType, _):argsT) instruction = do
+      exprType <- getExprType expr
+      checkType expr [argType] exprType
+      checkArgs exprsT argsT instruction
+
+
     checkTwoExprs :: Expr -> Expr -> ExpectedTypes -> Checker Type
     checkTwoExprs expr1 expr2 expected = do
       t1 <- getExprType expr1
@@ -53,3 +72,4 @@ getExprType expr = case expr of
       t2 <- getExprType expr2
       checkType expr2 [t1] t2
       return t1
+

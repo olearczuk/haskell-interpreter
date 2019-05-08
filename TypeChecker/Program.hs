@@ -16,7 +16,8 @@ import TypeChecker.Declaration
 checkProgram :: Program -> Either String (Env ->Env )
 checkProgram (Program stmts) = 
   runExcept $ runReaderT (checkStmt $ head stmts) 
-    $ Env { variables = M.empty, isLoop = False, blockNumber = 0 }
+    $ Env { variables = M.empty, isLoop = False, blockNumber = 0,
+            functions = M.empty, actFunctionType = Nothing }
 
   
 

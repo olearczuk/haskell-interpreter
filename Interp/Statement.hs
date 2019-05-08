@@ -5,10 +5,8 @@ import Interp.Expression
 import Interp.Declaration
 import Interp.Utils
 import Control.Monad.Reader
+import Data.Maybe(fromJust)
 import qualified Data.Map as M
-
-
-data StmtResult = StmtBreak | StmtContinue
 
 
 interpStmtBlock :: Stmt -> Interp (Maybe StmtResult)
@@ -52,10 +50,12 @@ interpStmt (Decr x) cont = do
   interpStmts cont
 
 
--- interpStmt (Ret expr) TODO
+interpStmt (Ret expr) _ = do
+  val <- evalExpr expr
+  return $ Just $ StmtReturn val
 
 
--- interpStmt VRet TODO
+interpStmt VRet _ = return $ Just $ StmtReturn VoidVal
 
 
 interpStmt (Cond expr stmt) cont = do
@@ -97,15 +97,34 @@ interpStmt (For x expr1 expr2 stmt) cont = do
         _ -> interpStmt (For x (EInt $ n1+1) (EInt n2) stmt) cont
     else interpStmts cont
 
--- Break and Continue to be fixed (maybe using Exception)
-
 interpStmt Break _ = return $ Just StmtBreak
 
 interpStmt Continue _ = return $ Just StmtContinue
 
 interpStmt (StmtExp expr) cont = evalExpr expr >> interpStmts cont
 
+interpStmt (StmtDecl (FnDecl fType fId args (Block stmts))) cont =
+  let args' = map (\(Arg t x) -> x) args
+      stmts' = stmts ++ [getReturn fType]
+      function = executeFunction args' stmts' in
+  local (\env -> env { 
+    functions = M.insert fId function $ functions env
+  }) $ interpStmts cont
+
+  where
+    getReturn :: Type -> Stmt
+    getReturn Void = VRet
+    getReturn t = Ret $ fromJust $ M.lookup t defaultExprs
+
+    executeFunction :: [Ident] -> [Stmt] -> [Expr] -> Interp (Maybe StmtResult)
+    executeFunction [] stmts [] = interpStmts stmts
+
+    executeFunction (x:xT) stmts (expr:exprT) = do
+      vars <- asks variables
+      exprVal <- evalExpr expr
+      creation <- createNewVariable x exprVal
+      local creation $ executeFunction xT stmts exprT
+
 interpStmt (StmtDecl def) cont = do
   f <- execDecl def
   local f $ interpStmts cont
-

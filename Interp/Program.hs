@@ -14,7 +14,7 @@ interpProgram :: Program -> IO ()
 interpProgram (Program stmts)  =
   let res = runExcept (runReaderT( 
         runStateT (interpStmtBlock $ head stmts) (M.empty, 0)) 
-        $ Env { variables = M.empty }) in
+        $ Env { variables = M.empty, functions = M.empty }) in
   case res of
     Left err -> putStrLn err
     _ -> putStrLn "ok"

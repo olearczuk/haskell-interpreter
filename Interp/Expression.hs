@@ -3,7 +3,10 @@ module Interp.Expression where
 import AbsGrammar
 import Interp.Utils
 import Control.Monad.Except
+import qualified Data.Map as M
+import Data.Maybe(fromJust)
 import PrintGrammar
+import Control.Monad.Reader
 
 evalExpr :: Expr -> Interp Val
 
@@ -15,8 +18,11 @@ evalExpr ETrue = return $ BoolVal True
 
 evalExpr EFalse = return $ BoolVal False
 
--- TODO
--- interp (EApp f exprs) 
+evalExpr (EApp f exprs) = do
+  functions <- asks functions
+  let function = fromJust $ M.lookup f functions
+  Just (StmtReturn val) <- function exprs
+  return val
 
 evalExpr (EString s) = return $ StringVal s
 

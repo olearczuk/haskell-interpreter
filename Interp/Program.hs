@@ -17,4 +17,4 @@ interpProgram (Program stmts)  = do
         $ Env { variables = M.empty, functions = M.empty })
   case res of
     Left err -> putStrLn err
-    _ -> putStrLn "ok"
+    _ -> return ()

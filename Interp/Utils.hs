@@ -11,7 +11,7 @@ data Val = IntVal Integer | StringVal String | BoolVal Bool | VoidVal deriving (
 
 instance Show Val where
   show (IntVal n) = show n
-  show (StringVal s) = show s
+  show (StringVal s) = s
   show (BoolVal b) = if b then "true" else "false"
   show VoidVal = "<void value>"  
 

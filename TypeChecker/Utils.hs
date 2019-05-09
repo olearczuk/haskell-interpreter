@@ -13,6 +13,9 @@ type BlockNumber = Integer
 type ArgsData = [(Type, Ident)]
 type FunctionData = (Type, BlockNumber, ArgsData)
 
+builtInFunctions :: [Ident]
+builtInFunctions = [Ident "print"]
+
 allVariableTypes :: ExpectedTypes
 allVariableTypes = [Int, Str, Bool]
 
@@ -103,15 +106,18 @@ nextBlockNumber env = env { blockNumber = 1 + blockNumber env }
 
 checkIfFunctionDefined :: (Print a) => Ident -> a -> Checker ()
 checkIfFunctionDefined f instruction = do
-  functions <- asks functions
-  actBlockNumber <- asks blockNumber
-  let functionData = M.lookup f functions
-  case functionData of
-    Just (_, blockNumber, _) ->
-      if blockNumber == actBlockNumber
-        then throwError $ (wrappedPrintTree instruction) ++ " <- function is already defined"
-        else return ()
-    Nothing -> return ()
+  if f `elem` builtInFunctions
+    then throwError $ (wrappedPrintTree instruction) ++ " <- built in function"
+  else do
+    functions <- asks functions
+    actBlockNumber <- asks blockNumber
+    let functionData = M.lookup f functions
+    case functionData of
+      Just (_, blockNumber, _) ->
+        if blockNumber == actBlockNumber
+          then throwError $ (wrappedPrintTree instruction) ++ " <- function is already defined"
+          else return ()
+      Nothing -> return ()
 
 lookupFunctionData :: (Print a) => Ident -> a -> Checker FunctionData
 lookupFunctionData f instruction = do

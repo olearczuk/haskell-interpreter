@@ -9,6 +9,12 @@ import AbsGrammar
 
 data Val = IntVal Integer | StringVal String | BoolVal Bool | VoidVal deriving (Eq, Ord)
 
+instance Show Val where
+  show (IntVal n) = show n
+  show (StringVal s) = show s
+  show (BoolVal b) = if b then "true" else "false"
+  show VoidVal = "<void value>"  
+
 data StmtResult = StmtBreak | StmtContinue | StmtReturn Val
 
 type Loc = Int
@@ -18,7 +24,7 @@ data Env = Env { variables :: M.Map Ident Loc, functions :: M.Map Ident ([Expr] 
 type Mem = M.Map Loc Val
 type Store = (Mem, Loc)
 
-type Interp a = StateT Store (ReaderT Env (Except String)) a
+type Interp a = StateT Store (ReaderT Env (ExceptT String IO)) a
 
 defaultValues :: M.Map Type Val
 defaultValues = M.fromList [(Int, IntVal 0), (Str, StringVal ""), (Bool, BoolVal False)]

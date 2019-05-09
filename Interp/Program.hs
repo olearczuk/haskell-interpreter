@@ -11,10 +11,10 @@ import Interp.Statement
 import Interp.Utils
 
 interpProgram :: Program -> IO ()
-interpProgram (Program stmts)  =
-  let res = runExcept (runReaderT( 
+interpProgram (Program stmts)  = do
+  res <- runExceptT (runReaderT( 
         runStateT (interpStmtBlock $ head stmts) (M.empty, 0)) 
-        $ Env { variables = M.empty, functions = M.empty }) in
+        $ Env { variables = M.empty, functions = M.empty })
   case res of
     Left err -> putStrLn err
     _ -> putStrLn "ok"

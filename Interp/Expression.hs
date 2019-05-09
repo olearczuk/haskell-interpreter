@@ -7,6 +7,7 @@ import qualified Data.Map as M
 import Data.Maybe(fromJust)
 import PrintGrammar
 import Control.Monad.Reader
+import Control.Monad(forM_)
 
 evalExpr :: Expr -> Interp Val
 
@@ -17,6 +18,13 @@ evalExpr (EInt n) = return $ IntVal n
 evalExpr ETrue = return $ BoolVal True
 
 evalExpr EFalse = return $ BoolVal False
+
+evalExpr (EApp (Ident "print") (expr:exprsT)) = do
+  val <-evalExpr expr
+  liftIO $ putStr $ show val ++ " "
+  evalExpr (EApp (Ident "print") exprsT)
+
+evalExpr (EApp (Ident "print") []) = liftIO $ putStrLn "" >> return VoidVal
 
 evalExpr (EApp f exprs) = do
   functions <- asks functions

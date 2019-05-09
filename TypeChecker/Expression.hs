@@ -35,9 +35,9 @@ getExprType expr = case expr of
   
   EAdd expr1 Minus expr2 -> checkTwoExprs expr1 expr2 [Int]
 
-  ERel expr1 Eq expr2 -> checkTwoExprs expr1 expr2 allVariableTypes >> return Bool
+  ERel expr1 Eq expr2 -> checkTwoExprs expr1 expr2 allComparableTypes >> return Bool
 
-  ERel expr1 Ne expr2 -> checkTwoExprs expr1 expr2 allVariableTypes >> return Bool
+  ERel expr1 Ne expr2 -> checkTwoExprs expr1 expr2 allComparableTypes >> return Bool
 
   ERel expr1 _ expr2 -> checkTwoExprs expr1 expr2 [Int, Str] >> return Bool
 

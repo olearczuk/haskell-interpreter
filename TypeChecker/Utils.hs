@@ -16,8 +16,8 @@ type FunctionData = (Type, BlockNumber, ArgsData)
 builtInFunctions :: [Ident]
 builtInFunctions = [Ident "print"]
 
-allVariableTypes :: ExpectedTypes
-allVariableTypes = [Int, Str, Bool]
+allComparableTypes :: ExpectedTypes
+allComparableTypes = [Int, Str, Bool]
 
 
 data Env = Env { 

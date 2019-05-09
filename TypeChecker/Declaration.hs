@@ -53,12 +53,10 @@ execSingleVarDecl item varType isConst = do
   case item of
     NoInit x -> do
       checkIfVariableDefined x item
-      checkType item allVariableTypes varType
       addVariable x varType isConst
       
     Init x expr -> do
       checkIfVariableDefined x item
-      checkType item allVariableTypes varType
       exprType <- getExprType expr
       checkType expr [varType] exprType
       addVariable x varType isConst

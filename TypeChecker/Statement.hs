@@ -7,6 +7,13 @@ import AbsGrammar
 import qualified Data.Map as M
 import TypeChecker.Declaration
 
+checkStmts :: [Stmt] -> Checker (Env -> Env)
+checkStmts [] = return id
+
+checkStmts (stmt:stmtT) = do
+  stmtResult <- checkStmt stmt
+  local stmtResult $ checkStmts stmtT 
+
 checkStmt :: Stmt -> Checker (Env -> Env)
 checkStmt stmt = case stmt of
   Empty -> return id

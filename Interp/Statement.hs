@@ -9,10 +9,6 @@ import Data.Maybe(fromJust)
 import qualified Data.Map as M
 
 
-interpStmtBlock :: Stmt -> Interp (Maybe StmtResult)
-interpStmtBlock (BStmt (Block stmts)) = interpStmts stmts
-
-    
 interpStmts :: [Stmt] -> Interp (Maybe StmtResult)
 interpStmts stmts = case stmts of
   [] -> return Nothing

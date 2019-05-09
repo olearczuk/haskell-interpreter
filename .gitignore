@@ -1,0 +1,9 @@
+*.bak
+*.log
+*.hi
+*.o
+*.dvi
+Interp/*.hi
+Interp/*.o
+TypeChecker/*.hi
+TypeChecker/*.o

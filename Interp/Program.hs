@@ -11,9 +11,11 @@ import Interp.Statement
 import Interp.Utils
 
 interpProgram :: Program -> IO ()
-interpProgram (Program stmts)  = do
+interpProgram (Program decls)  = do
+  let stmts = map (\decl -> StmtDecl decl) decls
+      stmts' = stmts ++ [StmtExp (EApp (Ident "main") [])]
   res <- runExceptT (runReaderT( 
-        runStateT (interpStmtBlock $ head stmts) (M.empty, 0)) 
+        runStateT (interpStmts stmts') (M.empty, 0)) 
         $ Env { variables = M.empty, functions = M.empty })
   case res of
     Left err -> putStrLn err

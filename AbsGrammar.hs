@@ -8,7 +8,7 @@ module AbsGrammar where
 
 
 newtype Ident = Ident String deriving (Eq, Ord, Show, Read)
-data Program = Program [Stmt]
+data Program = Program [TopDef]
   deriving (Eq, Ord, Show, Read)
 
 data TopDef

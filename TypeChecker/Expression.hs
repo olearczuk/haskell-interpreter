@@ -26,7 +26,7 @@ getExprType expr = case expr of
 
   Not expr1 -> do
     t1 <- getExprType expr1
-    checkType expr [Int] t1
+    checkType expr [Bool] t1
     return t1
 
   EMul expr1 _ expr2 -> checkTwoExprs expr1 expr2 [Int]

@@ -21,7 +21,7 @@ evalExpr EFalse = return $ BoolVal False
 
 evalExpr (EApp (Ident "print") (expr:exprsT)) = do
   val <-evalExpr expr
-  liftIO $ putStr $ show val ++ " "
+  liftIO $ putStr $ show val ++ (if (length exprsT) > 0  then " " else "")
   evalExpr (EApp (Ident "print") exprsT)
 
 evalExpr (EApp (Ident "print") []) = liftIO $ putStrLn "" >> return VoidVal

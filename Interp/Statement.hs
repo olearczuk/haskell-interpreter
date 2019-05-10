@@ -77,6 +77,7 @@ interpStmt (While expr stmt) cont = do
       res <- interpStmt stmt []
       case res of
         Just StmtBreak -> interpStmts cont
+        Just (StmtReturn val) -> return $ Just $ StmtReturn val
         _ -> interpStmt (While expr stmt) cont
     else interpStmts cont
 
@@ -90,6 +91,7 @@ interpStmt (For x expr1 expr2 stmt) cont = do
       res <- local f $ interpStmt stmt []
       case res of
         Just StmtBreak -> interpStmts cont
+        Just (StmtReturn val) -> return $ Just $ StmtReturn val
         _ -> interpStmt (For x (EInt $ n1+1) (EInt n2) stmt) cont
     else interpStmts cont
 

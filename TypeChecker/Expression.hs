@@ -45,7 +45,9 @@ getExprType expr = case expr of
 
   EOr expr1 expr2 -> checkTwoExprs expr1 expr2 [Bool]
 
-  EApp (Ident "print") exprs -> return Void
+  EApp (Ident "print") (expr:exprT) -> getExprType expr >> getExprType (EApp (Ident "print") exprT)
+
+  EApp (Ident "print") [] -> return Void
 
   EApp f exprs -> do
     (fType, _, storedArgs) <- lookupFunctionData f expr

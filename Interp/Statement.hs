@@ -101,12 +101,13 @@ interpStmt Continue _ = return $ Just StmtContinue
 
 interpStmt (StmtExp expr) cont = evalExpr expr >> interpStmts cont
 
-interpStmt (StmtDecl (FnDecl fType fId args (Block stmts))) cont =
+interpStmt (StmtDecl (FnDecl fType fId args (Block stmts))) cont = do
+  actEnv <- ask
   let args' = map (\(Arg t x) -> x) args
       stmts' = stmts ++ [getReturn fType]
-      function = executeFunction args' stmts' in
+      function = executeFunction args' stmts'
   local (\env -> env { 
-    functions = M.insert fId function $ functions env
+    functions = M.insert fId (actEnv, function) $ functions env
   }) $ interpStmts cont
 
   where
@@ -114,14 +115,12 @@ interpStmt (StmtDecl (FnDecl fType fId args (Block stmts))) cont =
     getReturn Void = VRet
     getReturn t = Ret $ fromJust $ M.lookup t defaultExprs
 
-    executeFunction :: [Ident] -> [Stmt] -> [Expr] -> Interp (Maybe StmtResult)
+    executeFunction :: [Ident] -> [Stmt] -> [Val] -> Interp (Maybe StmtResult)
     executeFunction [] stmts [] = interpStmts stmts
 
-    executeFunction (x:xT) stmts (expr:exprT) = do
-      vars <- asks variables
-      exprVal <- evalExpr expr
-      creation <- createNewVariable x exprVal
-      local creation $ executeFunction xT stmts exprT
+    executeFunction (x:xT) stmts (val:valsT) = do
+      creation <- createNewVariable x val
+      local creation $ executeFunction xT stmts valsT
 
 interpStmt (StmtDecl def) cont = do
   f <- execDecl def

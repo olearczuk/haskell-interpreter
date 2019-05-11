@@ -27,10 +27,23 @@ evalExpr (EApp (Ident "print") (expr:exprsT)) = do
 evalExpr (EApp (Ident "print") []) = liftIO $ putStrLn "" >> return VoidVal
 
 evalExpr (EApp f exprs) = do
-  functions <- asks functions
-  let function = fromJust $ M.lookup f functions
-  Just (StmtReturn val) <- function exprs
+  exprVals <- getExprsVals exprs
+  functions' <- asks functions
+  let functionData = fromJust $ M.lookup f functions'
+      storedEnv = fst functionData
+      function = snd functionData
+      envWithFunction = storedEnv { functions = M.insert f functionData $ functions storedEnv }
+  Just (StmtReturn val) <- local (\_ -> envWithFunction) $ function exprVals
   return val
+
+  where
+    getExprsVals :: [Expr] -> Interp [Val]
+    getExprsVals [] = return []
+
+    getExprsVals (expr:exprsT) = do
+      val <- evalExpr expr
+      vals <- getExprsVals exprsT 
+      return (val:vals)
 
 evalExpr (EString s) = return $ StringVal s
 

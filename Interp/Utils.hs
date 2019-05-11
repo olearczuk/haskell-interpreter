@@ -19,7 +19,7 @@ data StmtResult = StmtBreak | StmtContinue | StmtReturn Val
 
 type Loc = Int
 
-data Env = Env { variables :: M.Map Ident Loc, functions :: M.Map Ident ([Expr] -> Interp (Maybe StmtResult)) }
+data Env = Env { variables :: M.Map Ident Loc, functions :: M.Map Ident (Env, [Val] -> Interp (Maybe StmtResult)) }
 
 type Mem = M.Map Loc Val
 type Store = (Mem, Loc)

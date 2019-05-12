@@ -16,7 +16,9 @@ interpProgram (Program decls)  = do
       stmts' = stmts ++ [StmtExp (EApp (Ident "main") [])]
   res <- runExceptT (runReaderT( 
          runStateT (interpStmts stmts') (M.empty, 0)) 
-         $ Env { variables = M.empty, functions = M.fromList [(Ident "print", (emptyEnv, printFunction))] })
+         $ Env { variables = M.empty, functions = M.fromList [(Ident "print", (emptyEnv, printFunction)),
+                                                              (Ident "readStr", (emptyEnv, readStrFunction)),
+                                                              (Ident "readInt", (emptyEnv, readIntFunction))] })
   case res of
     Left err -> putStrLn err
     _ -> return ()

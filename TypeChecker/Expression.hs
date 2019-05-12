@@ -49,6 +49,10 @@ getExprType expr = case expr of
 
   EApp (Ident "print") [] -> return Void
 
+  EApp (Ident "readInt") exprs -> checkArgs exprs [] expr >> return Int
+
+  EApp (Ident "readStr") exprs -> checkArgs exprs [] expr >> return Str
+
   EApp f exprs -> do
     (fType, _, storedArgs) <- lookupFunctionData f expr
     checkArgs exprs storedArgs expr

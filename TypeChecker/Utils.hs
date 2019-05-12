@@ -14,7 +14,7 @@ type ArgsData = [(Type, Ident)]
 type FunctionData = (Type, BlockNumber, ArgsData)
 
 builtInFunctions :: [Ident]
-builtInFunctions = [Ident "print"]
+builtInFunctions = [Ident "print", Ident "readInt", Ident "readStr"]
 
 allComparableTypes :: ExpectedTypes
 allComparableTypes = [Int, Str, Bool]

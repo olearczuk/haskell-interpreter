@@ -6,6 +6,7 @@ import Control.Monad.Except
 import qualified Data.Map as M
 import Data.Maybe(fromJust)
 import AbsGrammar
+import Text.Read(readEither)
 
 data Val = IntVal Integer | StringVal String | BoolVal Bool | VoidVal deriving (Eq, Ord)
 
@@ -67,3 +68,15 @@ printFunction (val:valsT) = do
 printFunction [] = do
   liftIO $ putStrLn ""
   return $ Just $ StmtReturn VoidVal
+
+readStrFunction :: [Val] -> Interp (Maybe StmtResult)
+readStrFunction _ = do
+  str <- liftIO $ getLine
+  return $ Just $ StmtReturn $ StringVal str
+
+readIntFunction :: [Val] -> Interp (Maybe StmtResult)
+readIntFunction _ = do
+  val <- liftIO $ getLine
+  case readEither val of
+    Left _ -> throwError $ "readInt <- input is not a number"
+    Right n -> return $ Just $ StmtReturn $ IntVal n

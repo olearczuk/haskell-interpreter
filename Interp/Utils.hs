@@ -21,6 +21,9 @@ type Loc = Int
 
 data Env = Env { variables :: M.Map Ident Loc, functions :: M.Map Ident (Env, [Val] -> Interp (Maybe StmtResult)) }
 
+emptyEnv :: Env
+emptyEnv = Env { variables = M.empty, functions = M.empty }
+
 type Mem = M.Map Loc Val
 type Store = (Mem, Loc)
 
@@ -56,3 +59,11 @@ createNewVariable x val = do
 
 getDefaultValue ::Type -> Val
 getDefaultValue t = fromJust $ M.lookup t defaultValues
+
+printFunction :: [Val] -> Interp (Maybe StmtResult)
+printFunction (val:valsT) = do
+  liftIO $ putStr $ show val ++ (if (length valsT) > 0  then " " else "")
+  printFunction valsT
+printFunction [] = do
+  liftIO $ putStrLn ""
+  return $ Just $ StmtReturn VoidVal

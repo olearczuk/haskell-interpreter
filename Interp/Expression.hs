@@ -19,13 +19,6 @@ evalExpr ETrue = return $ BoolVal True
 
 evalExpr EFalse = return $ BoolVal False
 
-evalExpr (EApp (Ident "print") (expr:exprsT)) = do
-  val <-evalExpr expr
-  liftIO $ putStr $ show val ++ (if (length exprsT) > 0  then " " else "")
-  evalExpr (EApp (Ident "print") exprsT)
-
-evalExpr (EApp (Ident "print") []) = liftIO $ putStrLn "" >> return VoidVal
-
 evalExpr (EApp f exprs) = do
   exprVals <- getExprsVals exprs
   functions' <- asks functions

@@ -25,8 +25,17 @@ data Env = Env { variables :: M.Map Ident Loc, functions :: M.Map Ident (Env, [V
 emptyEnv :: Env
 emptyEnv = Env { variables = M.empty, functions = M.empty }
 
+initEnv :: Env
+initEnv = Env { variables = M.empty, 
+                functions = M.fromList [(Ident "print", (emptyEnv, printFunction)),
+                                        (Ident "readStr", (emptyEnv, readStrFunction)),
+                                        (Ident "readInt", (emptyEnv, readIntFunction))] }
+
 type Mem = M.Map Loc Val
 type Store = (Mem, Loc)
+
+initStore :: Store
+initStore = (M.empty, 0)
 
 type Interp a = StateT Store (ReaderT Env (ExceptT String IO)) a
 

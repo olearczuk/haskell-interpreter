@@ -16,9 +16,7 @@ import TypeChecker.Declaration
 checkProgram :: Program -> Either String (Env ->Env)
 checkProgram (Program decls) = 
   let stmts = map (\decl -> StmtDecl decl) decls in
-  runExcept $ runReaderT (checkStmts stmts) 
-    $ Env { variables = M.empty, isLoop = False, blockNumber = 0,
-            functions = M.empty, actFunctionType = Nothing }
+  runExcept $ runReaderT (checkStmts stmts) initEnv
 
   
 

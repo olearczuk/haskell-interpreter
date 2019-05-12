@@ -25,9 +25,12 @@ data Env = Env {
                   isLoop :: Bool, 
                   blockNumber :: Integer, 
                   functions :: M.Map Ident FunctionData, 
-                  actFunctionType :: Maybe Type
+                  actFunctionType :: Type
                 }
 
+initEnv :: Env
+initEnv = Env { variables = M.empty, isLoop = False, blockNumber = 0,
+                functions = M.empty, actFunctionType = Int }
 
 type Checker a = (ReaderT Env (Except String)) a
 
@@ -126,10 +129,3 @@ lookupFunctionData f instruction = do
   case functionData of
     Nothing -> throwError $ (wrappedPrintTree instruction) ++ " <- function is not defined"
     Just fData -> return fData
-
-lookupActFunctionType :: (Print a) => a -> Checker Type
-lookupActFunctionType instruction = do
-  fType <- asks actFunctionType
-  case fType of
-    Nothing -> throwError $ (wrappedPrintTree instruction) ++ " <- outside of function"
-    Just t -> return t

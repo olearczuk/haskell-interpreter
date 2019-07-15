@@ -26,29 +26,29 @@ Multi-line comments using `/* */`, one-line comments using `//`
 ### IO instructions
 #### Print
 Prints content to stdio, same structure as in Python
-```
+```python
 print(EXPR1, EXPR2);
 ```
 #### ReadInt
 Read line from stdio and converts is to integer. Receiving non-number input causes runtime error.
-```
+```python
 int IDENT = readInt();
 ```
 #### ReadStr
 Read line from stdio and returns it as string.
-```
+```python
 string IDENT = readStr();
 ```
 ### Loops
 #### While
-```
+```python
 while (CONDITION) {
   INSTRUCTIONS
 }
 ```
 #### For
 EXPR1 and EXPR2 are evaluated before executing loop. Variable is read-only, attempt of changing variable inside of the loop causes compile error.
-```
+```python
 for (IDENT = EXPR1, EXPR2) {
   INSTRUCTIONS
 }
@@ -57,7 +57,7 @@ for (IDENT = EXPR1, EXPR2) {
 Break and continue act exactly like in C. They work in both types of loops.
 
 ### Conditional statements
-```
+```python
 if (CONDITION) {
   INSTRUCTIONS
 }
@@ -71,7 +71,7 @@ if (CONDITION) {
 
 ### Nested functions
 It is possible to create nested functions, with recursion and static identifier binding.
-```
+```c
 int function(ARGS) {
   int inner_function(INNER_ARGS) {
     INNSTRUCTIONS

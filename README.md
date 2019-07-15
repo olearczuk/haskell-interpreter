@@ -1,36 +1,81 @@
-# Szymon Olearczuk, opis rozwiązania
-## Istniejące funkcjonalności
-### Typy
-- 4 typy wartości: int, string, bool, void
-### Zmienne
-- oczywiście istnieje oepracja przypisania, porównania, arytmetka itd.
-- zmienne read-only (słowo kluczowe const)
-- zmienne globalne i lokalne
-- zadeklarowanie zmiennej bez przypisania nadaje domyślną wartość
-  - int -> 0
-  - string -> ""
-  - bool -> false
-### Instrukcje sterujące  
-- standardowa pętla while
-- pętla `for (i = pocz to kon)`
-  - pętla w stylu Pascala (zmiana i wewnątrz pętli powoduje błąd)
-  - wartość kon wyliczana jest przed wejściem do pętli
-- instrukcje break/continue działające w obu wyżej wspomnianych pętlach
-- instrukcja warunkowa if 
--   identycznie jak w c  -> z else lub bez
-### Funkcje
-- dowolnie zagnieżdżone funkcje z zachowaniem statycznego wiązania identyfikatorów 
-  - funkcje "zapamiętują" środowisko z momentu deklaracji
-- funkcje obsługują i zwracają wartości dowolnych istniejących typów
-### Operacje wejścia-wyjścia
-- print -> funkcja wypisująca wszystie otrzymane argumenty (identyczna jak w pythonie)
-- readStr -> funkcja pobiera ze standardowego wejścia linię i zwraca ją jako string
-- readInt -> funkcja pobiera ze standardowego wejścia linię i zwraca ją jako string (lub błąd wykonania w przypadku, gdy wpisana linia nie parsuje się do liczby)
-### Dodatkowo
-- obsługa błędów w czasie wykonania
-  - dzielenie przez 0
-  - modulo przez 0
-  - pobranie z pomocą readInt napisu nie będącego liczbą
-- statyczne typowanie (sprawdzanie typów w czasie "kompilacji") - wszystkie błędy poza wyżej wspomnianymi są wykryte przez rozpoczęciem działania programu
-## Uwaga
-- o statycznym typowaniu rozmawiałem z Panem po pierwszym projekcie interpretera, więc ta opcja jest z terminem 11 czerwca, ale oddaję ją razem z resztą wcześniej zaprojektowanych funkcjonalności
+# Overview
+ABC Interpreter is written entirely in haskell. Language grammar is presented in *grammar.cf* file. Using this grammar I was able to use [BNF Converter](https://bnfc.digitalgrammars.com/). Code samples can be found in **examples** directory.
+## Language description
+ABC is imperative language modelled after C language. It is statically typed, so any type errors are detected before running the progam. The only runtime errors are:
+- dividing by 0
+- mod by 0
+- readInt() getting non-number input
+## Types
+| **Type** | **Default value**  |
+|----------|:------------------:|
+| void     | **Does not exist** |
+| int      | 0                  |
+| string   | ""                 |
+| bool     | false              |
+Additionally variable can be read-only (using keyword *const*).
+
+## Operators
+- Arithmetic operators: `+, -, *, /, %`
+- Relational operators: `<, <=, >, >=, ==, !=`
+- Logical operators: `&&, ||, !`
+
+## Comments
+Multi-line comments using `/* */`, one-line comments using `//`
+
+## Instructions
+### IO instructions
+#### Print
+Prints content to stdio, same structure as in Python
+```
+print(EXPR1, EXPR2);
+```
+#### ReadInt
+Read line from stdio and converts is to integer. Receiving non-number input causes runtime error.
+```
+int IDENT = readInt();
+```
+#### ReadStr
+Read line from stdio and returns it as string.
+```
+string IDENT = readStr();
+```
+### Loops
+#### While
+```
+while (CONDITION) {
+  INSTRUCTIONS
+}
+```
+#### For
+EXPR1 and EXPR2 are evaluated before executing loop. Variable is read-only, attempt of changing variable inside of the loop causes compile error.
+```
+for (IDENT = EXPR1, EXPR2) {
+  INSTRUCTIONS
+}
+```
+#### Break and continue
+Break and continue act exactly like in C. They work in both types of loops.
+
+### Conditional statements
+```
+if (CONDITION) {
+  INSTRUCTIONS
+}
+
+if (CONDITION) {
+  INSTRUCTIONS
+} else {
+  INSTRUCTIONS
+}
+```
+
+### Nested functions
+It is possible to create nested functions, with recursion and static identifier binding.
+```
+int function(ARGS) {
+  int inner_function(INNER_ARGS) {
+    INNSTRUCTIONS
+  }
+  inner_function(ARGS_VALUES);
+}
+```
